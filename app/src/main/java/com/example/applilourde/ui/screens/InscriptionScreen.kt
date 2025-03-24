@@ -1,0 +1,180 @@
+package com.example.applilourde.ui.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import com.example.applilourde.data.model.Parent
+import com.example.applilourde.data.repository.ParentRepository
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InscriptionScreen(
+    parentRepository: ParentRepository,
+    onInscriptionSuccess: (String) -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    var nom by remember { mutableStateOf("") }
+    var prenom by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var telephone by remember { mutableStateOf("") }
+    var adresse by remember { mutableStateOf("") }
+    
+    var errorMessage by remember { mutableStateOf("") }
+    var successMessage by remember { mutableStateOf("") }
+    
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Inscription") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Retour")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Inscription au service de cru00e8che RAM",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+            
+            if (errorMessage.isNotEmpty()) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+            
+            if (successMessage.isNotEmpty()) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Text(
+                        text = successMessage,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+            
+            OutlinedTextField(
+                value = nom,
+                onValueChange = { nom = it },
+                label = { Text("Nom") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+            
+            OutlinedTextField(
+                value = prenom,
+                onValueChange = { prenom = it },
+                label = { Text("Pru00e9nom") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+            
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+            
+            OutlinedTextField(
+                value = telephone,
+                onValueChange = { telephone = it },
+                label = { Text("Tu00e9lu00e9phone") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+            
+            OutlinedTextField(
+                value = adresse,
+                onValueChange = { adresse = it },
+                label = { Text("Adresse") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                minLines = 2
+            )
+            
+            Button(
+                onClick = {
+                    if (nom.isBlank() || prenom.isBlank() || email.isBlank() || telephone.isBlank() || adresse.isBlank()) {
+                        errorMessage = "Tous les champs sont obligatoires"
+                        return@Button
+                    }
+                    
+                    // Vu00e9rifier si l'email existe du00e9ju00e0
+                    if (parentRepository.getParentByEmail(email) != null) {
+                        errorMessage = "Cet email est du00e9ju00e0 utilisu00e9"
+                        return@Button
+                    }
+                    
+                    // Cru00e9er le nouveau parent
+                    val parent = Parent(
+                        nom = nom,
+                        prenom = prenom,
+                        email = email,
+                        telephone = telephone,
+                        adresse = adresse
+                    )
+                    
+                    parentRepository.addParent(parent)
+                    
+                    successMessage = "Inscription ru00e9ussie !"
+                    errorMessage = ""
+                    
+                    // Rediriger vers l'accueil apru00e8s un court du00e9lai
+                    onInscriptionSuccess(parent.id)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            ) {
+                Text("S'inscrire")
+            }
+        }
+    }
+}
