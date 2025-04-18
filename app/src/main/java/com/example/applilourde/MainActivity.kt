@@ -15,16 +15,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.applilourde.api.ApiServer
+import com.example.applilourde.api.ApiServerManager
 import com.example.applilourde.data.repository.DisponibiliteRepository
 import com.example.applilourde.data.repository.EnfantRepository
 import com.example.applilourde.data.repository.ParentRepository
 import com.example.applilourde.data.repository.ReservationRepository
 import com.example.applilourde.ui.screens.*
 import com.example.applilourde.ui.theme.AppliLourdeTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     // Repositories
@@ -33,35 +30,23 @@ class MainActivity : ComponentActivity() {
     private val reservationRepository = ReservationRepository()
     private val disponibiliteRepository = DisponibiliteRepository()
     
-    // API Server
-    private lateinit var apiServer: ApiServer
+    // API Server Manager
+    private lateinit var apiServerManager: ApiServerManager
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         
-        // Initialiser et démarrer le serveur API
-        apiServer = ApiServer(
+        // Initialiser le gestionnaire de serveur API
+        apiServerManager = ApiServerManager(this)
+        
+        // Du00e9marrer le serveur API
+        apiServerManager.startServer(
             parentRepository = parentRepository,
             enfantRepository = enfantRepository,
             disponibiliteRepository = disponibiliteRepository,
             reservationRepository = reservationRepository
         )
-        
-        // Démarrer le serveur API dans un thread séparé
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                apiServer.start(8080)
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "API démarrée sur le port 8080", Toast.LENGTH_LONG).show()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Erreur lors du démarrage de l'API: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
         
         setContent {
             AppliLourdeTheme {
@@ -72,7 +57,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     
                     NavHost(navController = navController, startDestination = "login") {
-                        // Écran de connexion
+                        // u00c9cran de connexion
                         composable("login") {
                             LoginScreen(
                                 parentRepository = parentRepository,
@@ -87,7 +72,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         
-                        // Écran d'inscription
+                        // u00c9cran d'inscription
                         composable("inscription") {
                             InscriptionScreen(
                                 parentRepository = parentRepository,
@@ -102,7 +87,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         
-                        // Écran d'accueil
+                        // u00c9cran d'accueil
                         composable(
                             route = "home/{parentId}",
                             arguments = listOf(navArgument("parentId") { type = NavType.StringType })
@@ -123,7 +108,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         
-                        // Écran de réservation
+                        // u00c9cran de ru00e9servation
                         composable(
                             route = "reservation/{enfantId}",
                             arguments = listOf(navArgument("enfantId") { type = NavType.StringType })
@@ -141,7 +126,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         
-                        // Écran de consultation des réservations
+                        // u00c9cran de consultation des ru00e9servations
                         composable(
                             route = "mes-reservations/{parentId}",
                             arguments = listOf(navArgument("parentId") { type = NavType.StringType })
@@ -158,7 +143,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         
-                        // Écran d'administration de l'API
+                        // u00c9cran d'administration de l'API
                         composable("api-admin") {
                             ApiAdminScreen(
                                 apiBaseUrl = "http://localhost:8080",
@@ -175,9 +160,9 @@ class MainActivity : ComponentActivity() {
     
     override fun onDestroy() {
         super.onDestroy()
-        // Arrêter le serveur API lorsque l'application est fermée
-        if (::apiServer.isInitialized) {
-            apiServer.stop()
+        // Arru00eater le serveur API lorsque l'application est fermu00e9e
+        if (::apiServerManager.isInitialized) {
+            apiServerManager.stopServer()
         }
     }
 }

@@ -21,17 +21,25 @@ class ApiServer(
     private var server: ApplicationEngine? = null
 
     fun start(port: Int = 8080) {
-        server = embeddedServer(Netty, port = port) {
-            install(ContentNegotiation) {
-                json(Json {
-                    prettyPrint = true
-                    isLenient = true
-                })
-            }
-            configureRouting()
-        }.start(wait = false)
-        
-        println("API Server started on port $port")
+        try {
+            server = embeddedServer(Netty, port = port) {
+                install(ContentNegotiation) {
+                    json(Json {
+                        prettyPrint = true
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                        coerceInputValues = true
+                    })
+                }
+                configureRouting()
+            }.start(wait = false)
+            
+            println("API Server started on port $port")
+        } catch (e: Exception) {
+            println("Failed to start API server: ${e.message}")
+            e.printStackTrace()
+            throw e
+        }
     }
 
     private fun Application.configureRouting() {
@@ -51,7 +59,14 @@ class ApiServer(
     }
 
     fun stop() {
-        server?.stop(1000, 2000)
-        println("API Server stopped")
+        try {
+            server?.stop(1000, 2000)
+            println("API Server stopped")
+        } catch (e: Exception) {
+            println("Error stopping API server: ${e.message}")
+            e.printStackTrace()
+        } finally {
+            server = null
+        }
     }
 }
