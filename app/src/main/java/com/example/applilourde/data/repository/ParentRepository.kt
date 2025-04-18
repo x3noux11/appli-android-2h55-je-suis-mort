@@ -50,5 +50,14 @@ class ParentRepository {
             telephone = "0687654321",
             adresse = "456 Rue des Roses, 75002 Paris"
         ))
+        // Ajout d'un compte administrateur root/root
+        addParent(Parent(
+            id = "admin",
+            nom = "Admin",
+            prenom = "Root",
+            email = "root",
+            telephone = "0000000000",
+            adresse = "Administrateur système"
+        ))
     }
 }

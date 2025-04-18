@@ -146,13 +146,13 @@ fun InscriptionScreen(
                         return@Button
                     }
                     
-                    // Vu00e9rifier si l'email existe du00e9ju00e0
+                    // Vérifier si l'email existe déjà
                     if (parentRepository.getParentByEmail(email) != null) {
-                        errorMessage = "Cet email est du00e9ju00e0 utilisu00e9"
+                        errorMessage = "Cet email est déjà utilisé"
                         return@Button
                     }
                     
-                    // Cru00e9er le nouveau parent
+                    // Créer le nouveau parent
                     val parent = Parent(
                         nom = nom,
                         prenom = prenom,
@@ -163,10 +163,10 @@ fun InscriptionScreen(
                     
                     parentRepository.addParent(parent)
                     
-                    successMessage = "Inscription ru00e9ussie !"
+                    successMessage = "Inscription réussie !"
                     errorMessage = ""
                     
-                    // Rediriger vers l'accueil apru00e8s un court du00e9lai
+                    // Rediriger vers l'accueil après un court délai
                     onInscriptionSuccess(parent.id)
                 },
                 modifier = Modifier
