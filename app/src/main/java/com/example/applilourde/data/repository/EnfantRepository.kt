@@ -32,27 +32,28 @@ class EnfantRepository {
         return enfants.toList()
     }
 
-    // Simuler quelques donnu00e9es initiales
+    // Simuler quelques données initiales
     init {
         addEnfant(Enfant(
             id = "1",
             nom = "Dupont",
-            prenom = "Lu00e9a",
-            dateNaissance = "2020-05-15",
-            parentId = "1"
+            prenom = "Lucas",
+            dateNaissance = "2018-05-15",
+            parentId = "1",
+            informationsSpecifiques = "Allergique aux arachides"
         ))
         addEnfant(Enfant(
             id = "2",
             nom = "Dupont",
-            prenom = "Lucas",
-            dateNaissance = "2022-02-10",
+            prenom = "Emma",
+            dateNaissance = "2020-02-10",
             parentId = "1"
         ))
         addEnfant(Enfant(
             id = "3",
             nom = "Martin",
-            prenom = "Emma",
-            dateNaissance = "2021-11-20",
+            prenom = "Léa",
+            dateNaissance = "2019-11-22",
             parentId = "2"
         ))
     }

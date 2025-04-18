@@ -1,6 +1,7 @@
 package com.example.applilourde
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,12 +15,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.applilourde.api.ApiServer
 import com.example.applilourde.data.repository.DisponibiliteRepository
 import com.example.applilourde.data.repository.EnfantRepository
 import com.example.applilourde.data.repository.ParentRepository
 import com.example.applilourde.data.repository.ReservationRepository
 import com.example.applilourde.ui.screens.*
 import com.example.applilourde.ui.theme.AppliLourdeTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     // Repositories
@@ -28,9 +33,36 @@ class MainActivity : ComponentActivity() {
     private val reservationRepository = ReservationRepository()
     private val disponibiliteRepository = DisponibiliteRepository()
     
+    // API Server
+    private lateinit var apiServer: ApiServer
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        
+        // Initialiser et démarrer le serveur API
+        apiServer = ApiServer(
+            parentRepository = parentRepository,
+            enfantRepository = enfantRepository,
+            disponibiliteRepository = disponibiliteRepository,
+            reservationRepository = reservationRepository
+        )
+        
+        // Démarrer le serveur API dans un thread séparé
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                apiServer.start(8080)
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "API démarrée sur le port 8080", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "Erreur lors du démarrage de l'API: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+        
         setContent {
             AppliLourdeTheme {
                 Surface(
@@ -87,6 +119,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToMesReservations = {
                                     navController.navigate("mes-reservations/$parentId")
+                                },
+                                onNavigateToApiAdmin = {
+                                    navController.navigate("api-admin")
                                 }
                             )
                         }
@@ -125,9 +160,27 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                        
+                        // Écran d'administration de l'API
+                        composable("api-admin") {
+                            ApiAdminScreen(
+                                apiBaseUrl = "http://localhost:8080",
+                                onNavigateBack = {
+                                    navController.navigateUp()
+                                }
+                            )
+                        }
                     }
                 }
             }
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // Arrêter le serveur API lorsque l'application est fermée
+        if (::apiServer.isInitialized) {
+            apiServer.stop()
         }
     }
 }

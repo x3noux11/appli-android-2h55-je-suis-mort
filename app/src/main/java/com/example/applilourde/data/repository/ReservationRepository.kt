@@ -2,24 +2,11 @@ package com.example.applilourde.data.repository
 
 import com.example.applilourde.data.model.Reservation
 import com.example.applilourde.data.model.StatutReservation
-import java.text.SimpleDateFormat
-import java.util.*
 
 class ReservationRepository {
     private val reservations = mutableListOf<Reservation>()
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE)
 
     fun addReservation(reservation: Reservation) {
-        // Vérifie que la réservation est au moins 24h à l'avance
-        val dateReservation = dateFormat.parse(reservation.date)
-        val now = Calendar.getInstance().time
-        val diff = dateReservation.time - now.time
-        val joursDiff = diff / (1000 * 60 * 60 * 24)
-        
-        if (joursDiff < 1) {
-            throw IllegalArgumentException("Les réservations doivent être faites au moins 24 heures à l'avance")
-        }
-        
         reservations.add(reservation)
     }
 
@@ -42,19 +29,56 @@ class ReservationRepository {
         }
     }
 
-    fun annulerReservation(id: String) {
-        val index = reservations.indexOfFirst { it.id == id }
-        if (index != -1) {
-            val reservation = reservations[index].copy(statut = StatutReservation.ANNULEE)
-            reservations[index] = reservation
-        }
-    }
-
-    fun getReservationsActives(): List<Reservation> {
-        return reservations.filter { it.statut == StatutReservation.CONFIRMEE || it.statut == StatutReservation.EN_ATTENTE }
+    fun deleteReservation(id: String) {
+        reservations.removeIf { it.id == id }
     }
 
     fun getAllReservations(): List<Reservation> {
         return reservations.toList()
+    }
+
+    // Simuler quelques donnu00e9es initiales
+    init {
+        // Ru00e9servations pour aujourd'hui
+        val today = java.time.LocalDate.now().toString()
+        
+        addReservation(Reservation(
+            id = "1",
+            enfantId = "1",
+            date = today,
+            heureDebut = "08:00",
+            heureFin = "12:00",
+            statut = StatutReservation.CONFIRMEE
+        ))
+        
+        addReservation(Reservation(
+            id = "2",
+            enfantId = "2",
+            date = today,
+            heureDebut = "08:00",
+            heureFin = "12:00",
+            statut = StatutReservation.CONFIRMEE
+        ))
+        
+        addReservation(Reservation(
+            id = "3",
+            enfantId = "3",
+            date = today,
+            heureDebut = "14:00",
+            heureFin = "18:00",
+            statut = StatutReservation.CONFIRMEE
+        ))
+        
+        // Ru00e9servation en attente pour demain
+        val tomorrow = java.time.LocalDate.now().plusDays(1).toString()
+        
+        addReservation(Reservation(
+            id = "4",
+            enfantId = "1",
+            date = tomorrow,
+            heureDebut = "08:00",
+            heureFin = "12:00",
+            statut = StatutReservation.EN_ATTENTE
+        ))
     }
 }
