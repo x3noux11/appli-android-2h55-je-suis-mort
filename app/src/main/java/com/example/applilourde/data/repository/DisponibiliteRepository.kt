@@ -32,6 +32,21 @@ class DisponibiliteRepository {
     fun getAllDisponibilites(): List<Disponibilite> {
         return disponibilites.toList()
     }
+    
+    fun getDisponibilitesDisponibles(): List<Disponibilite> {
+        return disponibilites.filter { it.placesReservees < it.capaciteTotale && it.typeGarde == TypeGarde.OCCASIONNEL }
+            .sortedBy { it.date }
+    }
+    
+    fun incrementerPlacesReservees(id: String) {
+        val disponibilite = getDisponibiliteById(id)
+        if (disponibilite != null && disponibilite.placesReservees < disponibilite.capaciteTotale) {
+            val updatedDisponibilite = disponibilite.copy(placesReservees = disponibilite.placesReservees + 1)
+            updateDisponibilite(updatedDisponibilite)
+        } else {
+            throw IllegalStateException("Plus de places disponibles pour cette période")
+        }
+    }
 
     // Simuler quelques donnu00e9es initiales
     init {

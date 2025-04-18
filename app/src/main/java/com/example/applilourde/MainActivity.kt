@@ -119,9 +119,6 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToMesReservations = {
                                     navController.navigate("mes-reservations/$parentId")
-                                },
-                                onNavigateToApiAdmin = {
-                                    navController.navigate("api-admin")
                                 }
                             )
                         }
