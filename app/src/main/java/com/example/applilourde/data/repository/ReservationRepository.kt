@@ -36,6 +36,14 @@ class ReservationRepository {
     fun getAllReservations(): List<Reservation> {
         return reservations.toList()
     }
+    
+    fun annulerReservation(id: String) {
+        val reservation = getReservationById(id)
+        if (reservation != null) {
+            val updatedReservation = reservation.copy(statut = StatutReservation.ANNULEE)
+            updateReservation(updatedReservation)
+        }
+    }
 
     // Simuler quelques donnu00e9es initiales
     init {
