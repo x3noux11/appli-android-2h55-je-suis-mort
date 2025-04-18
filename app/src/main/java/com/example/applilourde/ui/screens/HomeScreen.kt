@@ -4,17 +4,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.applilourde.data.model.Enfant
-import com.example.applilourde.data.model.Parent
 import com.example.applilourde.data.repository.EnfantRepository
 import com.example.applilourde.data.repository.ParentRepository
 import com.example.applilourde.data.repository.ReservationRepository
@@ -28,8 +24,7 @@ fun HomeScreen(
     enfantRepository: EnfantRepository,
     reservationRepository: ReservationRepository,
     onNavigateToReservation: (String) -> Unit,
-    onNavigateToMesReservations: () -> Unit,
-    onNavigateToApiAdmin: () -> Unit = {}
+    onNavigateToMesReservations: () -> Unit
 ) {
     val parent = parentRepository.getParentById(parentId)
     val enfants = enfantRepository.getEnfantsByParentId(parentId)
@@ -40,10 +35,7 @@ fun HomeScreen(
                 title = { Text("Accueil RAM") },
                 actions = {
                     IconButton(onClick = { onNavigateToMesReservations() }) {
-                        Icon(Icons.Default.DateRange, contentDescription = "Mes réservations")
-                    }
-                    IconButton(onClick = { onNavigateToApiAdmin() }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Administration API")
+                        Icon(Icons.Default.DateRange, contentDescription = "Mes ru00e9servations")
                     }
                 }
             )
@@ -72,7 +64,7 @@ fun HomeScreen(
             
             if (enfants.isEmpty()) {
                 Text(
-                    text = "Aucun enfant enregistré",
+                    text = "Aucun enfant enregistru00e9",
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 16.dp)
                 )
